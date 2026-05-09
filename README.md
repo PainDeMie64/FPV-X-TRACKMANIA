@@ -45,6 +45,7 @@ Access all settings via the Openplanet menu (`F3`)- > "Openplanet" button -> "Se
 - support for true fpv controllers binding, as well as keyboard/mouse
 - LB/RB for camera angle adjustment
 - non-linear curves
+- replace generic vector fallback with normalize-or
 
 ## Discord server to suggest features and share your clips
 

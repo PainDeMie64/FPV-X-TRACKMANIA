@@ -100,8 +100,8 @@ void RelaunchFromStart(CGameControlCameraFree@ cam) {
 
 void RefreshViewAngles() {
     // apply camera tilt to the craft's orientation
-    vec3 cameraRight = FPVMath::VCross(flightState.fwd, flightState.up);
-    float tiltRad = cfgCameraTilt * DEG2RAD;
+    vec3 cameraRight = Math::Cross(flightState.fwd, flightState.up);
+    float tiltRad = Math::ToRad(cfgCameraTilt);
     vec3 cameraForward = FPVMath::VNorm(FPVMath::RotAround(flightState.fwd, cameraRight, -tiltRad));
     vec3 cameraUp = FPVMath::VNorm(FPVMath::RotAround(flightState.up, cameraRight, -tiltRad));
 
@@ -116,23 +116,18 @@ void RefreshViewAngles() {
 
     // calculate roll by comparing camera up with world up
     vec3 worldUp = vec3(0, 1, 0);
-    float projectedDot = FPVMath::VDot(worldUp, cameraForward);
-    vec3 projectedUpRaw = vec3(
-        worldUp.x - cameraForward.x * projectedDot,
-        worldUp.y - cameraForward.y * projectedDot,
-        worldUp.z - cameraForward.z * projectedDot
-    );
+    float projectedDot = Math::Dot(worldUp, cameraForward);
+    vec3 projectedUpRaw = worldUp - cameraForward * projectedDot;
     
-    float projectedLen = Math::Sqrt(projectedUpRaw.x * projectedUpRaw.x + projectedUpRaw.y * projectedUpRaw.y + projectedUpRaw.z * projectedUpRaw.z);
-    if (projectedLen <= epsilon) {
+    if (projectedUpRaw.Length() <= epsilon) {
         flightState.view.roll = 0.0f;
         return;
     }
 
-    vec3 projectedUp = vec3(projectedUpRaw.x / projectedLen, projectedUpRaw.y / projectedLen, projectedUpRaw.z / projectedLen);
+    vec3 projectedUp = projectedUpRaw.Normalized();
     flightState.view.roll = Math::Atan2(
-        FPVMath::VDot(FPVMath::VCross(projectedUp, cameraUp), cameraForward),
-        FPVMath::VDot(projectedUp, cameraUp)
+        Math::Dot(Math::Cross(projectedUp, cameraUp), cameraForward),
+        Math::Dot(projectedUp, cameraUp)
     ) * (cfgInvVisualRoll ? -1.0f : 1.0f);
 }
 
@@ -226,7 +221,7 @@ void UpdateAngularRates(CInputScriptPad@ pad, float dt) {
 }
 
 void RotateCraft(float dt) {
-    vec3 bodyRight = FPVMath::VCross(flightState.fwd, flightState.up);
+    vec3 bodyRight = Math::Cross(flightState.fwd, flightState.up);
 
     // every body axis is updated with axis-angle rotation (Rodrigues' formula)
     // see FPVMath::RotAround
@@ -237,7 +232,7 @@ void RotateCraft(float dt) {
 
     // reorthonormalize to prevent drift
     flightState.fwd = FPVMath::VNorm(flightState.fwd);
-    flightState.up = FPVMath::VNorm(flightState.up - flightState.fwd * FPVMath::VDot(flightState.up, flightState.fwd));
+    flightState.up = FPVMath::VNorm(flightState.up - flightState.fwd * Math::Dot(flightState.up, flightState.fwd));
 }
 
 void IntegrateVelocity(float dt) {

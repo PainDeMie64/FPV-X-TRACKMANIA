@@ -1,8 +1,5 @@
 const float epsilon = 1e-6f;
 
-const float DEG2RAD = Math::PI / 180.0f;
-const float RAD2DEG = 180.0f / Math::PI;
-
 const uint cpLongPressMs = 900; // hold duration that clears the cp
 
 const int btnRecord = 6;  // default button for record

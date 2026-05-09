@@ -59,9 +59,9 @@ void RenderInterface() {
         UI::SetNextWindowSize(hudW, hudH);
         UI::Begin("##fpvhud", wf);
 
-        float speed = Math::Sqrt(flightState.vel.x * flightState.vel.x + flightState.vel.y * flightState.vel.y + flightState.vel.z * flightState.vel.z);
+        float speed = flightState.vel.Length();
         int thr = int(flightState.throttle * 100.0f);
-        float pitchDeg = -Math::Asin(Math::Clamp(flightState.fwd.y, -1.0f, 1.0f)) / DEG2RAD;
+        float pitchDeg = Math::ToDeg(-Math::Asin(Math::Clamp(flightState.fwd.y, -1.0f, 1.0f)));
 
         uint sampleCount = replay.samples.Length;
         float replayDuration = sampleCount > 0 ? replay.sampleTimes[sampleCount - 1] : 0.0f;
